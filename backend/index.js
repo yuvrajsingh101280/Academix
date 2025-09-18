@@ -22,11 +22,24 @@ await connectCloudinary();
 // Stripe webhook route - must be before express.json()
 app.post("/stripe", express.raw({ type: 'application/json' }), stripeWebhooks);
 
-// Middlewares
-app.use(cors({
-    origin: "http://localhost:5173",
-    credentials: true
-}));
+// ✅ CORS whitelist
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://academix-ashy.vercel.app"
+];
+
+app.use(
+    cors({
+        origin: function (origin, callback) {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
+        credentials: true,
+    })
+);
 // app.use(express.json()); // after /stripe
 app.use(cookieParser());
 
